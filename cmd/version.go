@@ -17,34 +17,20 @@ package cmd
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/spf13/cobra"
 )
 
-// evenCmd represents the even command
-var evenCmd = &cobra.Command{
-	Use:   "even",
-	Short: "add only even numbers from a list",
-	Long:  `given a list of numbers separated by speaces, adds them`,
+// versionCmd represents the version command
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Displays the current version",
+	Long:  `Displays the current version`,
 	Run: func(cmd *cobra.Command, args []string) {
-		addEven(args)
+		fmt.Println("version is 1.0")
 	},
 }
 
 func init() {
-	addCmd.AddCommand(evenCmd)
-}
-
-func addEven(args []string) {
-	sum := 0.0
-	for _, ival := range args {
-		if tempVal, err := strconv.ParseFloat(ival, 64); err != nil {
-			fmt.Println(err.Error())
-			return
-		} else {
-			sum += tempVal
-		}
-	}
-	fmt.Printf("%f\n", sum)
+	rootCmd.AddCommand(versionCmd)
 }

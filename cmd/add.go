@@ -16,8 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"strconv"
+	"calc/pkg/display"
+	"calc/pkg/format"
+	"calc/pkg/operations/add"
 
 	"github.com/spf13/cobra"
 )
@@ -27,43 +28,40 @@ var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "adds numbers separated by space",
 	Long:  `given a list of numbers separated by a space, sums them up and shows the result`,
-	Run: func(cmd *cobra.Command, args []string) {
-		floatStatus, _ := cmd.Flags().GetBool("float")
-		if floatStatus {
-			addFloat(args)
-		} else {
-			addInt(args)
-		}
-	},
+	Run:   addOp,
 }
 
 func init() {
 	rootCmd.AddCommand(addCmd)
-	addCmd.Flags().BoolP("float", "f", false, "add floating numbers")
+	addCmd.Flags().BoolP("ignoreFloat", "", false, "ignore the floating part of each number")
+	addCmd.Flags().BoolP("ignoreDecimal", "", false, "ignore the decimal part of each number")
 }
 
-func addInt(args []string) {
-	sum := 0
-	for _, ival := range args {
-		if itemp, err := strconv.Atoi(ival); err != nil {
-			fmt.Println(err.Error())
-			return
-		} else {
-			sum += itemp
-		}
+func addOp(cmd *cobra.Command, args []string) {
+	var opts add.AddOptions
+	var err error
+	var res string
+	var fRes float64
+
+	if opts, err = fetchOptions(cmd); err != nil {
+		display.Show("", err)
 	}
-	fmt.Printf("%d\n", sum)
+	if fRes, err = add.AddOp(opts, args); err != nil {
+		display.Show("", err)
+	}
+	if res, err = format.FormatOutput(fRes, err); err != nil {
+		display.Show(res, err)
+	}
+
+	display.Show(res, nil)
 }
 
-func addFloat(args []string) {
-	sum := 0.0
-	for _, ival := range args {
-		if itemp, err := strconv.ParseFloat(ival, 64); err != nil {
-			fmt.Println(err.Error())
-			return
-		} else {
-			sum += itemp
-		}
+func fetchOptions(cmd *cobra.Command) (add.AddOptions, error) {
+	ignoreFloat, _ := cmd.Flags().GetBool("ignoreFloat")
+	ignoreDecimal, _ := cmd.Flags().GetBool("ignoreDecimal")
+	addOpts := add.AddOptions{
+		IgnoreFloat:   ignoreFloat,
+		IgnoreDecimal: ignoreDecimal,
 	}
-	fmt.Printf("%f\n", sum)
+	return addOpts, nil
 }
