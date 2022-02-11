@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"calc/pkg/operations/version"
 
 	"github.com/spf13/cobra"
 )
@@ -26,8 +26,9 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Displays the current version",
 	Long:  `Displays the current version`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("version is 1.0")
+	Run: func(_ *cobra.Command, _ []string) {
+		ver := version.FetchVersion()
+		version.DisplayVersion(ver)
 	},
 }
 

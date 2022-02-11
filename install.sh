@@ -8,6 +8,7 @@ if go mod tidy; then
     echo "Installed go packages"
 else
     echo "Could not install go packages"
+    exit 1
 fi
 
 # Doing a go build to generate binary
@@ -16,6 +17,7 @@ if go build; then
     echo "Built go binary - calc"
 else
     echo "Could not build go binary"
+    exit 1
 fi
 
 # Installing new binary with go install
@@ -24,6 +26,7 @@ if go install calc; then
     echo "Installed calc binary"
 else
     echo "Could not install calc binary"
+    exit 1
 fi
 
 # Checking installation
@@ -32,6 +35,7 @@ if calc version; then
     echo
 else
     echo "Could not access calc"
+    exit 1
 fi
 
 calc

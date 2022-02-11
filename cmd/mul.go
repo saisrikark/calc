@@ -16,7 +16,10 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	display "calc/pkg/display"
+	format "calc/pkg/format"
+	mul "calc/pkg/operations/mul"
+	check "calc/pkg/validate"
 
 	"github.com/spf13/cobra"
 )
@@ -24,28 +27,41 @@ import (
 // mulCmd represents the mul command
 var mulCmd = &cobra.Command{
 	Use:   "mul",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("mul called")
-	},
+	Short: "multiply numbers separated by a space",
+	Long:  `multiply numbers separated by a space`,
+	Run:   mulOp,
 }
 
 func init() {
 	rootCmd.AddCommand(mulCmd)
+}
 
-	// Here you will define your flags and configuration settings.
+func mulOp(cmd *cobra.Command, args []string) {
+	var opts mul.MulOptions
+	var err error
+	var res string
+	var fRes float64
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// mulCmd.PersistentFlags().String("foo", "", "A help for foo")
+	if ok, err := check.IsValid(check.Mul, args); !ok || err != nil {
+		display.Show("", err)
+		return
+	}
+	if opts, err = fetchMulOptions(cmd); err != nil {
+		display.Show("", err)
+		return
+	}
+	if fRes, err = mul.MulOp(opts, args); err != nil {
+		display.Show("", err)
+		return
+	}
+	if res, err = format.FormatOutput(fRes, err); err != nil {
+		display.Show(res, err)
+		return
+	}
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// mulCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	display.Show(res, nil)
+}
+
+func fetchMulOptions(cmd *cobra.Command) (mul.MulOptions, error) {
+	return mul.MulOptions{}, nil
 }

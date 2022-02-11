@@ -16,7 +16,10 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	display "calc/pkg/display"
+	format "calc/pkg/format"
+	div "calc/pkg/operations/div"
+	check "calc/pkg/validate"
 
 	"github.com/spf13/cobra"
 )
@@ -24,28 +27,41 @@ import (
 // divCmd represents the div command
 var divCmd = &cobra.Command{
 	Use:   "div",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("div called")
-	},
+	Short: "division opeartion on two numbers",
+	Long:  `division opeartion on two numbers`,
+	Run:   divOp,
 }
 
 func init() {
 	rootCmd.AddCommand(divCmd)
+}
 
-	// Here you will define your flags and configuration settings.
+func divOp(cmd *cobra.Command, args []string) {
+	var opts div.DivOptions
+	var err error
+	var res string
+	var fRes float64
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// divCmd.PersistentFlags().String("foo", "", "A help for foo")
+	if ok, err := check.IsValid(check.Div, args); !ok || err != nil {
+		display.Show("", err)
+		return
+	}
+	if opts, err = fetchDivOptions(cmd); err != nil {
+		display.Show("", err)
+		return
+	}
+	if fRes, err = div.DivOp(opts, args); err != nil {
+		display.Show("", err)
+		return
+	}
+	if res, err = format.FormatOutput(fRes, err); err != nil {
+		display.Show(res, err)
+		return
+	}
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// divCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	display.Show(res, nil)
+}
+
+func fetchDivOptions(cmd *cobra.Command) (div.DivOptions, error) {
+	return div.DivOptions{}, nil
 }

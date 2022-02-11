@@ -16,9 +16,10 @@ limitations under the License.
 package cmd
 
 import (
-	"calc/pkg/display"
-	"calc/pkg/format"
-	"calc/pkg/operations/add"
+	display "calc/pkg/display"
+	format "calc/pkg/format"
+	add "calc/pkg/operations/add"
+	check "calc/pkg/validate"
 
 	"github.com/spf13/cobra"
 )
@@ -27,12 +28,16 @@ import (
 var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "adds numbers separated by space",
-	Long:  `given a list of numbers separated by a space, sums them up and shows the result`,
+	Long:  `adds numbers separated by space`,
 	Run:   addOp,
 }
 
 func init() {
 	rootCmd.AddCommand(addCmd)
+	initAddFlags()
+}
+
+func initAddFlags() {
 	addCmd.Flags().BoolP("ignoreFloat", "", false, "ignore the floating part of each number")
 	addCmd.Flags().BoolP("ignoreDecimal", "", false, "ignore the decimal part of each number")
 }
@@ -43,20 +48,27 @@ func addOp(cmd *cobra.Command, args []string) {
 	var res string
 	var fRes float64
 
-	if opts, err = fetchOptions(cmd); err != nil {
+	if ok, err := check.IsValid(check.Add, args); !ok || err != nil {
 		display.Show("", err)
+		return
+	}
+	if opts, err = fetchAddOptions(cmd); err != nil {
+		display.Show("", err)
+		return
 	}
 	if fRes, err = add.AddOp(opts, args); err != nil {
 		display.Show("", err)
+		return
 	}
 	if res, err = format.FormatOutput(fRes, err); err != nil {
 		display.Show(res, err)
+		return
 	}
 
 	display.Show(res, nil)
 }
 
-func fetchOptions(cmd *cobra.Command) (add.AddOptions, error) {
+func fetchAddOptions(cmd *cobra.Command) (add.AddOptions, error) {
 	ignoreFloat, _ := cmd.Flags().GetBool("ignoreFloat")
 	ignoreDecimal, _ := cmd.Flags().GetBool("ignoreDecimal")
 	addOpts := add.AddOptions{

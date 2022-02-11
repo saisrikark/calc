@@ -1,6 +1,10 @@
 # calc
 a terminal based calculator using go and cobra
 
+This is a personal exercise to learn cobra and create a 
+terminal application keeping in mind good programming practices
+for go.
+
 Dependencies
 Make sure you have the go compiler installed
 https://go.dev/doc/install
